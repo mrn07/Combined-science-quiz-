@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Combined Science Question Quiz</title>
+<style>
+  body { font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background:#e9ecef; display:flex; justify-content:center; padding:30px 0; margin:0; }
+  #quiz-container { background:white; padding:30px 40px; border-radius:15px; width:95%; max-width:900px; box-shadow:0 8px 20px rgba(0,0,0,0.1);}
+  h1{text-align:center; color:#343a40; margin-bottom:20px;}
+  #progress-container{background:#dee2e6; border-radius:15px; height:20px; width:100%; margin-bottom:30px; overflow:hidden;}
+  #progress-bar{background:#0d6efd; height:100%; width:0%; border-radius:15px 0 0 15px; transition: width 0.3s;}
+  .question-box{background:#f8f9fa; padding:20px; border-radius:12px; margin-bottom:20px; box-shadow:0 4px 10px rgba(0,0,0,0.05);}
+  .question-box h2{margin-bottom:15px; font-size:1.1rem; color:#495057;}
+  ul{list-style:none; padding:0; margin:0;}
+  li{margin-bottom:10px;}
+  .correct {color:green; font-weight:bold;}
+  .user-wrong {color:red; font-weight:bold;}
+  .review-answer {margin-top:5px; font-size:0.95rem;}
+  button{padding:12px 25px; background:#0d6efd; color:white; border:none; border-radius:10px; cursor:pointer; font-size:1rem; transition:background 0.3s, transform 0.2s; margin-right:10px;}
+  button:hover{background:#084298; transform:scale(1.05);}
+  #score{font-size:1.3rem; font-weight:bold; text-align:center; margin-top:20px; color:#0d6efd;}
+  #start-screen{text-align:center; padding:30px; border-radius:15px; background:#f8f9fa; box-shadow:0 4px 10px rgba(0,0,0,0.05);}
+  #start-screen p{margin-bottom:20px; font-size:1.1rem; color:#495057;}
+  #buttons-container{text-align:center; margin-top:20px;}
+  #credit{text-align:center; margin-top:30px; font-size:0.9rem; color:#6c757d;}
+  #review-container{max-height:70vh; overflow-y:auto; margin-top:20px;}
+  #review-buttons{text-align:center; margin-top:15px;}
+  .error{
+    background-color: red;
+    color: white;
+  
+  }
+   .edition {
+    color: orangered;
+
+  }
+  .congr{
+    color: orangered;
+    font-weight: bold;
+
+  }
+</style>
+</head>
+<body>
+<div id="quiz-container">
+  <div id="start-screen">
+    <h1><span class="edition">1<sup >st</sup> EDITION</span> | Welcome to Combined Science Question Quiz!</h1>
+    <p class="congr">There are 40 questions in this edition. You will see 5 questions at a time. Complete all 5 questions on the screen to move forward. After finishing all questions, you'll see your score and can review all answers. Progress is saved automatically.</p>
+    <button id="startBtn">Start Quiz</button>
+  </div>
+
+  <div id="quiz-content" style="display:none;">
+    <div id="progress-container"><div id="progress-bar"></div></div>
+    <div id="questions-container"></div>
+    <div id="buttons-container">
+      <div class="error"></div>
+      <button id="backBtn" style="display:none;">Back</button>
+      <button id="nextBtn">Next</button>
+    </div>
+  </div>
+
+  <div id="end-screen" style="display:none;text-align:center;">
+    <p id="score"></p>
+    <p class="congr">Congratulations on completing the quiz!<br>Thank you for participating. Try the 2<sup>nd</sup> edition and beat your previous score!</p>
+    <button id="restartBtn">Restart Quiz</button>
+    <button id="reviewBtnEnd">Review</button>
+  </div>
+
+  <div id="review-container" style="display:none;"></div>
+  <div id="review-buttons" style="display:none;">
+    <button id="backFromReviewBtn">Back</button>
+  </div>
+
+  <p id="credit">Quiz by: <a href="https://wa.me/263778658230" target="_blank">MR N Mutimbanyoka</a></p>
+</div>
+
+<script>
+const quiz=[
+  {q:"Question 1: Which part of the cell controls all activities?",options:["Cell wall","Nucleus","Cytoplasm","Mitochondria"],answer:"Nucleus"},
+  {q:"Question 2: Which organelle is responsible for respiration?",options:["Ribosome","Chloroplast","Mitochondria","Vacuole"],answer:"Mitochondria"},
+  {q:"Question 3: What process do plants use to make food?",options:["Respiration","Transpiration","Photosynthesis","Germination"],answer:"Photosynthesis"},
+  {q:"Question 4: Which gas is taken in during photosynthesis?",options:["Oxygen","Nitrogen","Carbon dioxide","Hydrogen"],answer:"Carbon dioxide"},
+  {q:"Question 5: What is the function of red blood cells?",options:["Fight disease","Carry oxygen","Digest food","Produce hormones"],answer:"Carry oxygen"},
+  {q:"Question 6: Which nutrient is mainly used for growth and repair?",options:["Carbohydrates","Fats","Vitamins","Proteins"],answer:"Proteins"},
+  {q:"Question 7: What is the main function of the lungs?",options:["Pump blood","Digest food","Exchange gases","Remove gases"],answer:"Exchange gases"},
+  {q:"Question 8: Which organ pumps blood around the body?",options:["Brain","Liver","Heart","Kidney"],answer:"Heart"},
+  {q:"Question 9: What type of blood vessel carries blood away from the heart?",options:["Vein","Capillary","Artery","Lymph vessel"],answer:"Artery"},
+  {q:"Question 10: Which organism causes malaria?",options:["Virus","Bacterium","Fungus","Protozoan"],answer:"Protozoan"},
+  {q:"Question 11: What is the main function of the xylem tissue?",options:["Transport food","Transport water","Photosynthesis","Protection"],answer:"Transport water"},
+  {q:"Question 12: Which organ stores bile?",options:["Liver","Pancreas","Gall bladder","Stomach"],answer:"Gall bladder"},
+  {q:"Question 13: Which type of reproduction involves only one parent?",options:["Sexual reproduction","Asexual reproduction","Fertilisation","Pollination"],answer:"Asexual reproduction"},
+  {q:"Question 14: Which part of the digestive system absorbs nutrients?",options:["Stomach","Large intestine","Small intestine","Oesophagus"],answer:"Small intestine"},
+  {q:"Question 15: Which type of teeth are used for tearing food?",options:["Incisors","Canines","Premolars","Molars"],answer:"Canines"},
+  {q:"Question 16: What is matter?",options:["Anything that has mass and occupies space","Anything that is alive","Anything that can burn","Anything that is visible"],answer:"Anything that has mass and occupies space"},
+  {q:"Question 17: Which state of matter has a fixed shape and fixed volume?",options:["Solid","Liquid","Gas","Plasma"],answer:"Solid"},
+  {q:"Question 18: Which method is best used to seperate sand and water?",options:["Evaporation","Distillation","Filtration","Chromatography"],answer:"Filtration"},
+  {q:"Question 19: What is an element?",options:["A substance made of two or more compounds","A mixture of substances","A substance made of only one type of atom","A substance that can be seperated easily"],answer:"A substance made of only one type of atom"},
+  {q:"Question 20: What is the chemical symbol for sodium?",options:["S","So","Na","N"],answer:"Na"},
+  {q:"Question 21: Which gas is produced when acids react with metals?",options:["Oxygen","Carbon dioxide","Hydrogen","Nitrogen"],answer:"Hydrogen"},
+  {q:"Question 22: Which substance turns red litmus paper blue?",options:["Acid","Alkali","Neutral substance","Salt"],answer:"Alkali"},
+  {q:"Question 23: What is rusting?",options:["Burning of iron","Reaction of iron with water only","Reaction of iron with oxygen and water","Melting of iron"],answer:"Reaction of iron with oxygen and water"},
+  {q:"Question 24: Which condition is necessary for rusting to occur?",options:["Heat only","Oxygen only","Water only","Oxygen and water"],answer:"Oxygen and water"},
+  {q:"Question 25: Which method is used to seperate coloured dyes?",options:["Filtration","Chromatography","Evaporation","Distillation"],answer:"Chromatography"},
+  {q:"Question 26: Which property is common to metals?",options:["Brittle","Poor conductor","Dull","Good conductor of electricity"],answer:"Good conductor of electricity"},
+  {q:"Question 27: What happens during a chemical reaction?",options:["No new substance is formed","Only a change in shape occurs","New substances are formed","Matter disappears"],answer:"New substances are formed"},
+  {q:"Question 28: Which piece of laboratory equipment is used to measure liquid volume accurately?",options:["Beaker","Test tube","Measuring cylinder","Conical flask"],answer:"Measuring cylinder"},
+  {q:"Question 29: What is an atom?",options:["The smallest particle of a compound","The smallest particle of an element","A mixture of particles","A group of molecules"],answer:"The smallest particle of an element"},
+  {q:"Question 30: Which gas is produced during complete combustion?",options:["Carbon monoxide","Carbon dioxide","Sulfur dioxide","Nitrogen dioxide"],answer:"Carbon dioxide"},
+  {q:"Question 31: Which unit is used to measure length?",options:["Kilogram","Metre","Second","Newton"],answer:"Metre"},
+  {q:"Question 32: Which of the following is a form of energy?",options:["Mass","Force","Heat","Weight"],answer:"Heat"},
+  {q:"Question 33: Which force pulls objects towards the earth?",options:["Friction","Magnetic force","Gravity","Electric force"],answer:"Gravity"},
+  {q:"Question 34: What instrument is used to measure electric current?",options:["Voltmeter","Ammeter","Thermometer","Galvanometer"],answer:"Ammeter"},
+  {q:"Question 35: What happens to the speed of an object when friction increases?",options:["It increases","It decreases","It remains constant","It becomes zero instantly"],answer:"It decreases"},
+  {q:"Question 36: Which type of energy is stored in a stretched spring?",options:["Kinetic energy","Heat energy","Elastic potential energy","Chemical energy"],answer:"Elastic potential energy"},
+  {q:"Question 37: Which unit is used to measure pressure?",options:["Newton","Joule","Pascal","Watt"],answer:"Pascal"},
+  {q:"Question 38: Which circuit component controls the flow of current?",options:["Bulb","Battery","Switch","Wire"],answer:"Switch"},
+  {q:"Question 39: What is the main function of a fuse?",options:["Increase current","Store electricity","Prevent overheating","Measure voltage"],answer:"Prevent overheating"},
+  {q:"Question 40: Which law states that every action has an equal and opposite reaction?",options:["Newton's First Law","Newton's Second Law","Newton's Third Law","The Law of gravitation"],answer:"Newton's Third Law"}
+];
+
+let currentIndex=0;
+let userAnswers=new Array(quiz.length).fill(null);
+const questionsPerPage=5;
+
+const startScreen=document.getElementById("start-screen");
+const quizContent=document.getElementById("quiz-content");
+const questionsContainer=document.getElementById("questions-container");
+const nextBtn=document.getElementById("nextBtn");
+const backBtn=document.getElementById("backBtn");
+const endScreen=document.getElementById("end-screen");
+const restartBtn=document.getElementById("restartBtn");
+const reviewBtnEnd=document.getElementById("reviewBtnEnd");
+const reviewContainer=document.getElementById("review-container");
+const reviewButtons=document.getElementById("review-buttons");
+const backFromReviewBtn=document.getElementById("backFromReviewBtn");
+const progressBar=document.getElementById("progress-bar");
+const scoreEl=document.getElementById("score");
+const startBtn=document.getElementById("startBtn");
+
+// Load previous state
+if(localStorage.getItem("quizState")){
+  const state=JSON.parse(localStorage.getItem("quizState"));
+  currentIndex=state.currentIndex;
+  userAnswers=state.userAnswers;
+  startScreen.style.display="none";
+  quizContent.style.display="block";
+  loadQuestions();
+  updateButtons();
+}
+
+startBtn.addEventListener("click",()=>{
+  startScreen.style.display="none";
+  quizContent.style.display="block";
+  loadQuestions();
+  updateButtons();
+  saveState();
+});
+
+function loadQuestions(){
+  questionsContainer.innerHTML="";
+  for(let i=currentIndex;i<Math.min(currentIndex+questionsPerPage,quiz.length);i++){
+    const q=quiz[i];
+    const div=document.createElement("div");
+    div.className="question-box";
+    div.innerHTML=`<h2>${q.q}</h2>
+      <ul>
+      ${q.options.map(opt=>{
+        let checked=userAnswers[i]===opt?"checked":"";
+        return `<li>
+          <input type="radio" name="option${i}" value="${opt}" id="${opt}${i}" ${checked}>
+          <label for="${opt}${i}">${opt}</label>
+        </li>`;
+      }).join('')}
+      </ul>`;
+    questionsContainer.appendChild(div);
+  }
+  updateProgress();
+}
+
+function updateProgress(){
+  progressBar.style.width=(currentIndex/quiz.length*100)+"%";
+}
+
+function updateButtons(){
+  backBtn.style.display=currentIndex>0?"inline-block":"none";
+}
+
+function saveState(){
+  localStorage.setItem("quizState",JSON.stringify({currentIndex,userAnswers}));
+}
+
+nextBtn.addEventListener("click",()=>{
+  for(let i=currentIndex;i<Math.min(currentIndex+questionsPerPage,quiz.length);i++){
+    const selected=document.querySelector(`input[name="option${i}"]:checked`);
+    if(!selected){document.querySelector(".error").textContent =  "Please answer all 5 questions on this page!";setTimeout(() => {document.querySelector(".error").textContent = "";
+      
+    }, 2000); return; }
+    userAnswers[i]=selected.value;
+  }
+  currentIndex+=questionsPerPage;
+  if(currentIndex>=quiz.length) showEndScreen();
+  else { loadQuestions(); updateButtons(); saveState(); }
+});
+
+backBtn.addEventListener("click",()=>{
+  currentIndex-=questionsPerPage;
+  if(currentIndex<0) currentIndex=0;
+  loadQuestions();
+  updateButtons();
+  saveState();
+});
+
+function showEndScreen(){
+  quizContent.style.display="none";
+  endScreen.style.display="block";
+  const score=userAnswers.filter((ans,i)=>ans===quiz[i].answer).length;
+  scoreEl.textContent=`Your score: ${score} / ${quiz.length}`;
+  saveState();
+}
+
+function showReview(){
+  reviewContainer.style.display="block";
+  reviewButtons.style.display="block";
+  endScreen.style.display="none";
+  reviewContainer.innerHTML="";
+  quiz.forEach((q,i)=>{
+    const div=document.createElement("div");
+    div.className="question-box";
+    const userAnswer = userAnswers[i];
+    const correctAnswer = q.answer;
+    let answerHTML = "";
+    if(userAnswer === correctAnswer){
+      answerHTML = `<div class="review-answer"><span class="correct">Your Answer: ${userAnswer} ✔</span></div>`;
+    } else {
+      answerHTML = `<div class="review-answer"><span class="user-wrong">Your Answer: ${userAnswer || "No Answer"} ✖</span> <span class="correct">| Correct Answer: ${correctAnswer}</span></div>`;
+    }
+    div.innerHTML=`<h2>${q.q}</h2>${answerHTML}`;
+    reviewContainer.appendChild(div);
+  });
+}
+
+reviewBtnEnd.addEventListener("click",showReview);
+
+backFromReviewBtn.addEventListener("click",()=>{
+  reviewContainer.style.display="none";
+  reviewButtons.style.display="none";
+  endScreen.style.display="block";
+});
+
+restartBtn.addEventListener("click",()=>{ 
+  currentIndex=0;
+  userAnswers=new Array(quiz.length).fill(null);
+  startScreen.style.display="block";
+  quizContent.style.display="none";
+  endScreen.style.display="none";
+  reviewContainer.style.display="none";
+  reviewButtons.style.display="none";
+  progressBar.style.width="0%";
+  localStorage.removeItem("quizState");
+});
+</script>
+</body>
+</html>
+
