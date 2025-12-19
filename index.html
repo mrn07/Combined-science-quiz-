@@ -164,6 +164,11 @@ startBtn.addEventListener("click",()=>{
   loadQuestions();
   updateButtons();
   saveState();
+  // Add this to track quiz start
+  gtag('event', 'quiz_start', {
+    'event_category': 'Quiz',
+    'event_label': 'Combined Science Quiz'
+  });
 });
 
 function loadQuestions(){
@@ -226,6 +231,14 @@ function showEndScreen(){
   const score=userAnswers.filter((ans,i)=>ans===quiz[i].answer).length;
   scoreEl.textContent=`Your score: ${score} / ${quiz.length}`;
   saveState();
+  // Add this to track quiz completion
+  gtag('event', 'quiz_complete', {
+    'event_category': 'Quiz',
+    'event_label': 'Combined Science Quiz',
+    'value': score  // sends the score to GA
+  });
+
+  saveState();
 }
 
 function showReview(){
@@ -250,6 +263,11 @@ function showReview(){
 }
 
 reviewBtnEnd.addEventListener("click",showReview);
+  // Add this to track review click
+  gtag('event', 'quiz_review', {
+    'event_category': 'Quiz',
+    'event_label': 'Combined Science Quiz'
+  });
 
 backFromReviewBtn.addEventListener("click",()=>{
   reviewContainer.style.display="none";
@@ -271,5 +289,6 @@ restartBtn.addEventListener("click",()=>{
 </script>
 </body>
 </html>
+
 
 
